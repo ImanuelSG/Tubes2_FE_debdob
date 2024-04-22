@@ -14,7 +14,6 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useToast } from "../ui/use-toast";
-import axios from "axios";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 
@@ -122,7 +121,7 @@ const MainForm = () => {
 
     try {
       const response = await fetch(
-        `https://tubes2bedebdob-production.up.railway.app/?src=${formData.source}&dest=${formData.destination}&search=${formData.method}`
+        `${process.env.NEXT_PUBLIC_API_URL}?src=${formData.source}&dest=${formData.destination}&search=${formData.method}`
       );
 
       if (!response.ok) {
@@ -200,7 +199,7 @@ const MainForm = () => {
                       value={field.value} // required to bind the value from the form
                       onChange={(e) => handleInputChange(e, "source")}
                       onBlur={() => {
-                        setTimeout(() => setSuggestionType(null), 100);
+                        setTimeout(() => setSuggestionType(null), 1000);
                       }}
                       onFocus={(e) => {
                         setSuggestionType("source");
@@ -241,7 +240,7 @@ const MainForm = () => {
                       value={field.value}
                       onChange={(e) => handleInputChange(e, "destination")}
                       onBlur={() => {
-                        setTimeout(() => setSuggestionType(null), 100);
+                        setTimeout(() => setSuggestionType(null), 1000);
                       }}
                       onFocus={(e) => {
                         setSuggestionType("destination");
@@ -251,9 +250,10 @@ const MainForm = () => {
                   </FormControl>
                   {suggestionType === "destination" &&
                     wikipediaSuggestions.length > 0 && (
-                      <div className="suggestion-list">
+                      <div className="shadow-xl">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
+                            className="border  border-black p-2 hover:bg-gray-100 cursor-pointer"
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
                           >

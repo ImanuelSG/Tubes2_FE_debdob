@@ -1,80 +1,149 @@
-import React, { useRef, useEffect } from 'react';
-import * as d3 from 'd3';
+"use client";
+import React, { useEffect, useRef, RefObject } from "react";
+import * as d3 from "d3";
+import type { CustomNode, Edge } from "../../lib/types";
 
-interface Path {
-  id: string;
-  nodes: string[];
+interface DirectedGraphProps {
+  nodes: CustomNode[];
+  links: Edge[];
+  levelNum: number[];
 }
 
-interface Props {
-  paths: Path[];
-}
+const getColorByLevel = (level: number): string => {
+  switch (level) {
+    case 0:
+      return "#1f77b4"; // Blue
+    case 1:
+      return "#ff7f0e"; // Orange
+    case 2:
+      return "#2ca02c"; // Green
+    case 3:
+      return "#d62728"; // Red
+    case 4:
+      return "#9467bd"; // Purple
+    case 5:
+      return "#8c564b"; // Brown
+    case 6:
+      return "#e377c2"; // Pink
+    case 7:
+      return "#7f7f7f"; // Gray
+    case 8:
+      return "#bcbd22"; // Yellow
+    case 9:
+      return "#17becf"; // Cyan
+    default:
+      return "#00ff00"; // Green
+  }
+};
 
-const MyGraph: React.FC<Props> = ({ paths }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
+const DirectedGraph: React.FC<DirectedGraphProps> = ({
+  nodes,
+  links,
+  levelNum,
+}) => {
+  const svgRef: RefObject<SVGSVGElement> = useRef(null);
 
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const svg = d3.select(svgRef.current);
+    const width = 1000; // Horizontal width
+    const height = 1000; // Vertical height
 
-    svg.selectAll('*').remove();
+    const svg = d3
+      .select(svgRef.current)
+      .attr("width", width)
+      .attr("height", height);
 
-    const maxLength = d3.max(paths.map(path => path.nodes.length));
+    const levelSeparation = 50; // Vertical space between levels
+    const nodeSpacing = 150; // Horizontal space between nodes
 
-    const nodeHeight = 30;
-    const verticalSpacing = 20;
-    const height = (paths.length + 1) * (nodeHeight + verticalSpacing);
+    // Center the root node
+    const centerX = width / 2; // Horizontal center
+    const centerY = 20; // Vertical center
 
-    const yScale = d3.scaleLinear().domain([0, paths.length - 1]).range([0, height - nodeHeight]);
+    // Position nodes based on level and index
+    const positionNodes = (nodes: CustomNode[]): void => {
+      const levelCounts: Record<number, number> = {}; // Track nodes per level
 
-    const links = svg
-      .selectAll('line')
-      .data(paths)
+      nodes.forEach((node) => {
+        const level = node.level ?? 0;
+        levelCounts[level] = (levelCounts[level] || 0) + 1;
+        // Vertical position by level, centered around the middle
+        node.y = centerY + level * levelSeparation; // Centered vertically
+        // Horizontal position with adequate spacing
+        const nodesInLevel = levelNum[level];
+        const totalSpacing = (nodesInLevel - 1) * nodeSpacing; // Total horizontal spacing
+        const startingX = width / nodesInLevel - totalSpacing / 2; // Start from the left
+        node.x = centerX - totalSpacing / 2 + (nodesInLevel - 1) * nodeSpacing; // Centered horizontally
+      });
+    };
+
+    positionNodes(nodes);
+
+    // Render the links with updated coordinates
+    svg
+      .append("g")
+      .attr("class", "links")
+      .selectAll("line")
+      .data(links)
       .enter()
-      .append('line')
-      .attr('x1', 50)
-      .attr('y1', (d, i) => yScale(i) + nodeHeight / 2)
-      .attr('x2', 150)
-      .attr('y2', (d, i) => yScale(i + 1) + nodeHeight / 2)
-      .attr('stroke', '#999')
-      .attr('stroke-opacity', 0.6)
-      .attr('stroke-width', 2);
+      .append("line")
+      .attr("x1", (d: Edge) => {
+        const sourceNode = nodes.find((n) => n.id === d.source);
+        return sourceNode?.x ?? 0;
+      })
+      .attr("y1", (d: Edge) => {
+        const sourceNode = nodes.find((n) => n.id === d.source);
+        return sourceNode?.y ?? 0;
+      })
+      .attr("x2", (d: Edge) => {
+        const targetNode = nodes.find((n) => n.id === d.target);
+        return targetNode?.x ?? 0;
+      })
+      .attr("y2", (d: Edge) => {
+        const targetNode = nodes.find((n) => n.id === d.target);
+        return targetNode?.y ?? 0;
+      })
+      .attr("stroke", "#999")
+      .attr("stroke-width", 2);
 
-    const nodes = svg
-      .selectAll('circle')
-      .data(paths.flat().map(node => node.id).filter((value, index, self) => self.indexOf(value) === index))
+    // Render the nodes as circles with text
+    svg
+      .append("g")
+      .attr("class", "nodes")
+      .selectAll("circle")
+      .data(nodes)
       .enter()
-      .append('circle')
-      .attr('cx', 100)
-      .attr('cy', d => yScale(paths.findIndex(path => path.nodes.map(node => node.id).includes(d))) + nodeHeight / 2)
-      .attr('r', 8)
-      .attr('fill', 'steelblue');
+      .append("circle")
+      .attr("cx", (d: CustomNode) => d.x ?? 0)
+      .attr("cy", (d: CustomNode) => d.y ?? 0)
+      .attr("r", 20) // Radius of the circle
+      .attr("fill", (d: CustomNode) => getColorByLevel(d.level ?? 0)) // Fill color based on level
+      .style("cursor", "pointer")
+      .on("click", (event, d) => {
+        window.open(d.link, "_blank");
+      });
 
-    const labels = svg
-      .selectAll(null)
-      .data(paths.flat().map(node => node.id).filter((value, index, self) => self.indexOf(value) === index))
+    // Add text on top of the circles
+    svg
+      .selectAll("text")
+      .data(nodes)
       .enter()
-      .append('text')
-      .attr('x', 130)
-      .attr('y', d => yScale(paths.findIndex(path => path.nodes.map(node => node.id).includes(d))) + nodeHeight / 2)
-      .attr('dy', '.35em')
-      .text(d => d);
-
-    const simulation = d3.forceSimulation(paths.flat().map(node => node.id).filter((value, index, self) => self.indexOf(value) === index))
-      .force('x', d3.forceX(100))
-      .force('y', d3.forceY(d => yScale(paths.findIndex(path => path.nodes.map(node => node.id).includes(d))) + nodeHeight / 2))
-      .force('collide', d3.forceCollide(10))
-      .stop();
-
-    for (let i = 0; i < 100; ++i) simulation.tick();
+      .append("text")
+      .attr("x", (d: CustomNode) => d.x ?? 0)
+      .attr("y", (d: CustomNode) => (d.y ?? 0) + 5)
+      .attr("text-anchor", "middle")
+      .text((d: CustomNode) => d.label)
+      .attr("fill", "#000000") // Text color
+      .style("font-size", "12px")
+      .style("pointer-events", "none"); // Ensure text doesn't interfere with click events on circles
 
     return () => {
-      simulation.stop();
+      svg.selectAll("*").remove(); // Cleanup
     };
-  }, [paths]);
+  }, [nodes, links]);
 
-  return <svg ref={svgRef} width="200" height="400"></svg>;
+  return <svg ref={svgRef} style={{ width: "1000px", height: "1000px" }} />;
 };
 
-export default MyGraph;
+export default DirectedGraph;
