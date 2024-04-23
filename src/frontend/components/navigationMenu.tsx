@@ -19,13 +19,13 @@ const components: { title: string; href: string; description: string }[] = [
     title: "BFS",
     href: "/bfs",
     description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+      "Algoritma pencarian yang mengeksplorasi graf secara level demi level.",
   },
   {
     title: "IDS",
     href: "/ids",
     description:
-      "For sighted users to preview content available behind a link.",
+      "Algoritma hibrida yang menggabungkan aspek DFS dan BFS.",
   },
 ]
 
@@ -44,7 +44,7 @@ export function NavigationMenuBar() {
                     href="/"
                   >
                     <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
+                      Find The Path
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
                       Beautifully designed components that you can copy and

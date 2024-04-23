@@ -1,11 +1,9 @@
-import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 
 const BFS: React.FC = () => {
   return (
     <main className="font-mono flex min-h-screen flex-col items-center px-24">
-      <div className="w-full m-auto flex flex-row gap-12 px-36 bg-[#F7F7F7] p-24 rounded-3xl shadow-xl">
+      <div className="w-full m-auto flex flex-row gap-12 px-36 bg-color4 p-24 rounded-3xl shadow-2xl">
         <div className="w-1/2 flex flex-col items-start justify-center gap-10">
           <h1 className="text-6xl text-[#393E46] font-bold">Breadth-First Search (BFS)</h1>
           <p className="text-lg">BFS merupakan algoritma pencarian yang mengeksplorasi graf secara level demi level. Algoritma ini dimulai dari simpul awal dan mengunjungi semua simpul tetangganya sebelum melanjutkan ke level selanjutnya. Proses ini diulang hingga solusi ditemukan atau semua simpul telah dijelajahi.</p>

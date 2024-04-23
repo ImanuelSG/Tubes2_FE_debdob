@@ -21,6 +21,7 @@ import generateDAGData from "@/lib/generateDAGData";
 
 interface MainFormProps {
   setResult: Dispatch<SetStateAction<Response | null>>;
+  setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 const initialResponse: Response = {
@@ -35,7 +36,7 @@ const initialResponse: Response = {
 const WIKIPEDIA_SEARCH_ENDPOINT =
   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*";
 
-const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
+const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
   const { toast } = useToast();
   const [query, setQuery] = useState<string>("");
   const [wikipediaSuggestions, setWikipediaSuggestions] = useState([]);
@@ -168,6 +169,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
         Result.resultDepth = data.paths[0].length - 1;
 
         setResult(Result);
+        setLoading(false);
         toast({
           variant: "success",
           title: "Success!",
@@ -222,10 +224,10 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
                   </FormControl>
                   {suggestionType === "source" &&
                     wikipediaSuggestions.length > 0 && (
-                      <div className="absolute bg-white shadow-xl w-full">
+                      <div className="absolute  shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
-                            className="border  border-black p-2 hover:bg-gray-100 cursor-pointer"
+                            className="border bg-transparent border-black p-2 hover:bg-gray-100 cursor-pointer"
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
                           >
@@ -290,10 +292,10 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
                   </FormControl>
                   {suggestionType === "destination" &&
                     wikipediaSuggestions.length > 0 && (
-                      <div className="absolute bg-white shadow-xl w-full">
+                      <div className="absolute  shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
-                            className="border  border-black p-2 hover:bg-gray-100 cursor-pointer"
+                            className="border bg-transparent border-black p-2 hover:bg-gray-100 cursor-pointer"
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
                           >
@@ -336,7 +338,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
         />
 
         <div className="flex justify-center">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" onClick={() => setLoading(true)}>Submit</Button>
         </div>
       </form>
     </Form>

@@ -149,7 +149,7 @@ const paths = [
 ];
 
 export default function Start() {
-  const { nodes, Edges, numNodeLevel } = generateDAGData(paths);
+  // const { nodes, Edges, numNodeLevel } = generateDAGData(paths);
   return <Result />;
   // return <DirectedGraph nodes={nodes} links={Edges} levelNum={numNodeLevel} />;
 }

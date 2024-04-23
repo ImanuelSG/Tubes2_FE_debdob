@@ -85,7 +85,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .select(svgRef.current)
       .attr("width", width)
       .attr("height", height)
-      .style("background-color", "#080402");
+      .style("background-color", "#EEEEEE");
 
     const totalLevels = Object.keys(levelNum).length;
 
