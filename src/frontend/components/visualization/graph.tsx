@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useRef, RefObject } from "react";
 import * as d3 from "d3";
 import type { CustomNode, Edge } from "../../lib/types";
@@ -6,35 +5,24 @@ import type { CustomNode, Edge } from "../../lib/types";
 interface DirectedGraphProps {
   nodes: CustomNode[];
   links: Edge[];
-  levelNum: number[];
+  levelNum: Record<number, number>;
 }
 
-const getColorByLevel = (level: number): string => {
-  switch (level) {
-    case 0:
-      return "#1f77b4"; // Blue
-    case 1:
-      return "#ff7f0e"; // Orange
-    case 2:
-      return "#2ca02c"; // Green
-    case 3:
-      return "#d62728"; // Red
-    case 4:
-      return "#9467bd"; // Purple
-    case 5:
-      return "#8c564b"; // Brown
-    case 6:
-      return "#e377c2"; // Pink
-    case 7:
-      return "#7f7f7f"; // Gray
-    case 8:
-      return "#bcbd22"; // Yellow
-    case 9:
-      return "#17becf"; // Cyan
-    default:
-      return "#00ff00"; // Green
-  }
+const startColor = "#14764Aff"; // Dark Spring Green
+const endColor = "#FCC23Cff"; // Amber
+
+const getGradientColorByLevel = (
+  level: number,
+  totalLevels: number
+): string => {
+  const interpolate = d3.interpolateRgb(startColor, endColor);
+  const ratio = level / (totalLevels - 1);
+  return interpolate(ratio);
 };
+
+// Function to generate unique gradient ID
+const getGradientId = (sourceId: string, targetId: string) =>
+  `gradient-${sourceId}-${targetId}`;
 
 const DirectedGraph: React.FC<DirectedGraphProps> = ({
   nodes,
@@ -47,38 +35,98 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
     if (!svgRef.current) return;
 
     const width = 1000; // Horizontal width
-    const height = 1000; // Vertical height
+    const height = Object.keys(levelNum).length * 100 + 50; // Vertical height
 
     const svg = d3
       .select(svgRef.current)
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .style("background-color", "#080402");
 
-    const levelSeparation = 50; // Vertical space between levels
-    const nodeSpacing = 150; // Horizontal space between nodes
+    const defs = svg.append("defs");
+    links.forEach((link) => {
+      const sourceNode = nodes.find((n) => n.id === link.source);
+      const targetNode = nodes.find((n) => n.id === link.target);
 
-    // Center the root node
-    const centerX = width / 2; // Horizontal center
-    const centerY = 20; // Vertical center
+      if (sourceNode && targetNode) {
+        const gradientId = `gradient-${link.source}-${link.target}`;
+        const sourceColor = getGradientColorByLevel(
+          sourceNode.level ?? 0,
+          Object.keys(levelNum).length
+        ); // Or use logic based on source node
+        const targetColor = getGradientColorByLevel(
+          targetNode.level ?? 0,
+          Object.keys(levelNum).length
+        ); // Or use logic based on target node
 
-    // Position nodes based on level and index
-    const positionNodes = (nodes: CustomNode[]): void => {
-      const levelCounts: Record<number, number> = {}; // Track nodes per level
+        const edgeGradient = defs
+          .append("linearGradient")
+          .attr("id", gradientId)
+          .attr("x1", "0%")
+          .attr("x2", "0%")
+          .attr("y1", "0%")
+          .attr("y2", "100%");
 
+        edgeGradient
+          .append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", sourceColor);
+
+        edgeGradient
+          .append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", targetColor);
+
+        const markerId = `marker-${link.source}-${link.target}`;
+
+        defs
+          .append("marker")
+          .attr("id", markerId) // Unique identifier for the marker
+          .attr("viewBox", "0 -5 10 10") // View box for the marker
+          .attr("refX", 5) // Reference point for where the line will end
+          .attr("refY", 0) // Center the arrow on the line
+          .attr("markerWidth", 4) // Width of the marker
+          .attr("markerHeight", 4)
+          .attr("orient", "auto") // Ensures the arrow points in the correct direction
+          .append("path") // Define the shape of the arrowhead
+          .attr("d", "M0,-5L10,0L0,5") // Path for the arrowhead
+          .attr("fill", targetColor); // Color of the arrowhead
+      }
+    });
+
+    const positionNodes = (nodes: CustomNode[]) => {
+      const levelSeparation = 100;
+      const centerY = 50;
+
+      const levelCounts: Record<number, number> = {};
       nodes.forEach((node) => {
         const level = node.level ?? 0;
         levelCounts[level] = (levelCounts[level] || 0) + 1;
-        // Vertical position by level, centered around the middle
-        node.y = centerY + level * levelSeparation; // Centered vertically
-        // Horizontal position with adequate spacing
+        node.y = centerY + level * levelSeparation;
+
         const nodesInLevel = levelNum[level];
-        const totalSpacing = (nodesInLevel - 1) * nodeSpacing; // Total horizontal spacing
-        const startingX = width / nodesInLevel - totalSpacing / 2; // Start from the left
-        node.x = centerX - totalSpacing / 2 + (nodesInLevel - 1) * nodeSpacing; // Centered horizontally
+        const StartingX = width / (nodesInLevel + 1);
+
+        node.x = levelCounts[level] * StartingX;
       });
     };
 
     positionNodes(nodes);
+
+    const calculateOffset = (source: CustomNode, target: CustomNode) => {
+      if (!source.x || !source.y || !target.x || !target.y)
+        return { x: 0, y: 0 };
+
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const ratio = 12 / distance;
+
+      return {
+        x: target.x - dx * ratio,
+        y: target.y - dy * ratio,
+      };
+    };
 
     // Render the links with updated coordinates
     svg
@@ -97,15 +145,26 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         return sourceNode?.y ?? 0;
       })
       .attr("x2", (d: Edge) => {
+        const sourceNode = nodes.find((n) => n.id === d.source);
         const targetNode = nodes.find((n) => n.id === d.target);
-        return targetNode?.x ?? 0;
+        if (sourceNode && targetNode) {
+          const offset = calculateOffset(sourceNode, targetNode);
+          return offset.x + 0.001;
+        }
+        return 0;
       })
       .attr("y2", (d: Edge) => {
+        const sourceNode = nodes.find((n) => n.id === d.source);
         const targetNode = nodes.find((n) => n.id === d.target);
-        return targetNode?.y ?? 0;
+        if (sourceNode && targetNode) {
+          const offset = calculateOffset(sourceNode, targetNode);
+          return offset.y;
+        }
+        return 0;
       })
-      .attr("stroke", "#999")
-      .attr("stroke-width", 2);
+      .attr("stroke", (d: Edge) => `url(#gradient-${d.source}-${d.target})`) // Use unique gradient
+      .attr("stroke-width", 2)
+      .attr("marker-end", (d: Edge) => `url(#marker-${d.source}-${d.target})`); // Marker with target node color
 
     // Render the nodes as circles with text
     svg
@@ -117,11 +176,25 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .append("circle")
       .attr("cx", (d: CustomNode) => d.x ?? 0)
       .attr("cy", (d: CustomNode) => d.y ?? 0)
-      .attr("r", 20) // Radius of the circle
-      .attr("fill", (d: CustomNode) => getColorByLevel(d.level ?? 0)) // Fill color based on level
+      .attr("r", 12) // Radius of the circle
+      .attr("fill", (d: CustomNode) =>
+        getGradientColorByLevel(d.level ?? 0, Object.keys(levelNum).length)
+      ) // Fill color based on level
       .style("cursor", "pointer")
-      .on("click", (event, d) => {
+      .on("click", (d) => {
         window.open(d.link, "_blank");
+      })
+      .on("mouseover", function (event, d) {
+        // Increase the node size on hover and change the stroke color
+        d3.select(this)
+          .transition()
+          .attr("r", 25)
+          .attr("stroke", "#000")
+          .attr("stroke-width", 3);
+      })
+      .on("mouseout", function (event, d) {
+        // Reset the node size and remove the stroke
+        d3.select(this).transition().attr("r", 12).attr("stroke", null);
       });
 
     // Add text on top of the circles
@@ -131,19 +204,29 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .enter()
       .append("text")
       .attr("x", (d: CustomNode) => d.x ?? 0)
-      .attr("y", (d: CustomNode) => (d.y ?? 0) + 5)
+      .attr("y", (d: CustomNode) => (d.y ? d.y + 3 : 0))
       .attr("text-anchor", "middle")
       .text((d: CustomNode) => d.label)
-      .attr("fill", "#000000") // Text color
-      .style("font-size", "12px")
-      .style("pointer-events", "none"); // Ensure text doesn't interfere with click events on circles
+      .attr("fill", "#FFFF") // Text color
+      .style("font-size", "8px")
+      .style("pointer-events", "none") // Ensure text doesn't interfere with click events on circles
+      .style("font-family", "Montserrat")
+      .style("font-weight", "bold");
 
     return () => {
       svg.selectAll("*").remove(); // Cleanup
     };
   }, [nodes, links]);
 
-  return <svg ref={svgRef} style={{ width: "1000px", height: "1000px" }} />;
+  return (
+    <svg
+      ref={svgRef}
+      style={{
+        width: "1000px",
+        height: Object.keys(levelNum).length * 100 + 50,
+      }}
+    />
+  );
 };
 
 export default DirectedGraph;

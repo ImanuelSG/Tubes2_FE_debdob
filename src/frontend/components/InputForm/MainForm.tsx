@@ -1,6 +1,5 @@
-"use client";
-import { useEffect, useState } from "react";
-import { set, z } from "zod";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -16,11 +15,26 @@ import { Input } from "../ui/input";
 import { useToast } from "../ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
+import { APIResponse, Response } from "@/lib/types";
+import generateDAGData from "@/lib/generateDAGData";
+
+interface MainFormProps {
+  setResult: Dispatch<SetStateAction<Response | null>>;
+}
+
+const initialResponse: Response = {
+  nodes: [],
+  edges: [],
+  levelNum: {},
+  timeTaken: 0,
+  resultNum: 0,
+  resultDepth: 0,
+};
 
 const WIKIPEDIA_SEARCH_ENDPOINT =
   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*";
 
-const MainForm = () => {
+const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
   const { toast } = useToast();
   const [query, setQuery] = useState<string>("");
   const [wikipediaSuggestions, setWikipediaSuggestions] = useState([]);
@@ -114,7 +128,8 @@ const MainForm = () => {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
+        description:
+          "There was a problem with your request. One of your input is not a wikipedia article",
       });
       return;
     }
@@ -132,6 +147,19 @@ const MainForm = () => {
         });
         return;
       } else {
+        const data: APIResponse = await response.json();
+        let Result: Response = { ...initialResponse };
+
+        // Generate the DAG data and fill the Result object
+        const { nodes, Edges, numNodeLevel } = generateDAGData(data.paths);
+        Result.edges = Edges;
+        Result.nodes = nodes;
+        Result.levelNum = numNodeLevel;
+        Result.timeTaken = data.timeTaken;
+        Result.resultNum = data.paths.length;
+        Result.resultDepth = data.paths[0].length - 1;
+
+        setResult(Result);
         toast({
           variant: "success",
           title: "Success!",

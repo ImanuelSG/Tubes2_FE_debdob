@@ -10,20 +10,16 @@ import (
 )
 
 func getWikiArticle(title string) string {
-	article := "https://en.wikipedia.org/wiki/" + title
-	return article
+	return "https://en.wikipedia.org/wiki/" + title
 }
 
-// func main() {
-// 	start := time.Now()
-// 	result := IDS("https://en.wikipedia.org/wiki/Bandung_Institute_of_Technology", "https://en.wikipedia.org/wiki/China")
-// 	elapsed := time.Since(start)
-
-// 	fmt.Println("Search result:", result)
-// 	fmt.Println("Time taken:", elapsed)
-// }
-
 func main() {
+	// Get the port from the environment variable or default to 8000
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
 	r := gin.Default()
 	r.Use(cors.Default())
 
@@ -46,8 +42,9 @@ func main() {
 		}
 		elapsed := time.Since(start).Milliseconds()
 
-		c.JSON(http.StatusOK, gin.H{"paths": paths, "timeTaken (ms)": elapsed})
+		c.JSON(http.StatusOK, gin.H{"paths": paths, "timeTaken": elapsed})
 	})
 
-	r.Run(":" + os.Getenv("PORT"))
+	// Run the server on the specified port
+	r.Run(":" + port)
 }

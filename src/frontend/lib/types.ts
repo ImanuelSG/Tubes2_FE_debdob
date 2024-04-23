@@ -13,5 +13,19 @@ interface Edge {
   target: string;
 }
 
+interface APIResponse {
+  paths: string[][];
+  timeTaken: number;
+}
+
+interface Response {
+  nodes: CustomNode[];
+  edges: Edge[];
+  levelNum: Record<number, number>;
+  timeTaken: number;
+  resultNum: number;
+  resultDepth: number;
+}
+
 // Using `export type` to explicitly export types
-export type { CustomNode, Edge };
+export type { CustomNode, Edge, Response, APIResponse };

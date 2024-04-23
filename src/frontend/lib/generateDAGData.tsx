@@ -2,7 +2,6 @@ import type { CustomNode, Edge } from "./types";
 
 // Sample input paths with Wikipedia links
 
-
 // Function to extract a readable label from a Wikipedia link
 const extractLabelFromLink = (link: string): string => {
   const segments = link.split("/");
@@ -12,16 +11,19 @@ const extractLabelFromLink = (link: string): string => {
 // Function to generate nodes and links for a DAG from paths
 const generateDAGData = (
   paths: string[][]
-): { nodes: CustomNode[]; Edges: Edge[] } => {
+): {
+  nodes: CustomNode[];
+  Edges: Edge[];
+  numNodeLevel: Record<number, number>;
+} => {
   const nodeSet = new Set<string>();
   const EdgesData: Edge[] = [];
+  const numNodeLevels: Record<number, number> = {};
   const nodeLevels: Record<string, number> = {};
-  
 
   paths.forEach((path) => {
     path.forEach((link, index) => {
       nodeSet.add(link);
-
       if (index < path.length - 1) {
         EdgesData.push({ source: path[index], target: path[index + 1] });
       }
@@ -39,9 +41,11 @@ const generateDAGData = (
     level: nodeLevels[link], // Assign level for layout
   }));
 
+  nodes.forEach((node) => {
+    numNodeLevels[node.level] = (numNodeLevels[node.level] || 0) + 1;
+  });
 
-
-  return { nodes, Edges: EdgesData };
+  return { nodes, Edges: EdgesData, numNodeLevel: numNodeLevels };
 };
 
 export default generateDAGData;
