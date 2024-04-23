@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -121,7 +122,7 @@ func BFS2(src string, dest string) [][]string {
 	// c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 	c.OnHTML("div#mw-content-text "+"a[href]", func(e *colly.HTMLElement) {
 		currentLink := e.Request.URL.String()
-		neighborLink := e.Attr("href")
+		neighborLink, _ := url.QueryUnescape(e.Attr("href"))
 		if validLink(neighborLink) {
 			mutex.Lock()
 			if urlQueue.predecessors[e.Request.AbsoluteURL(neighborLink)] == "" && e.Request.AbsoluteURL(neighborLink) != src {

@@ -15,6 +15,7 @@ import { Input } from "../ui/input";
 import { useToast } from "../ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
+import Image from "next/image";
 import { APIResponse, Response } from "@/lib/types";
 import generateDAGData from "@/lib/generateDAGData";
 
@@ -134,6 +135,10 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
       return;
     }
 
+    formData.source = formData.source.replace(/ /g, "_");
+    
+    formData.destination = formData.destination.replace(/ /g, "_");
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}?src=${formData.source}&dest=${formData.destination}&search=${formData.method}`
@@ -152,6 +157,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
 
         // Generate the DAG data and fill the Result object
         const { nodes, Edges, numNodeLevel } = generateDAGData(data.paths);
+        
         Result.edges = Edges;
         Result.nodes = nodes;
         Result.levelNum = numNodeLevel;
@@ -159,6 +165,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
         Result.resultNum = data.paths.length;
         Result.resultDepth = data.paths[0].length - 1;
 
+       
         setResult(Result);
         toast({
           variant: "success",
@@ -184,41 +191,18 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-1/2 space-y-8">
+        <h1 className="text-xl font-semibold text-center">
+          Find the shortest paths from
+        </h1>
         <div className="flex flex-col gap-5">
-          <FormField
-            key={1}
-            control={control}
-            name="method"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <RadioGroup
-                    defaultValue="BFS"
-                    onValueChange={(newValue) => field.onChange(newValue)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="BFS" id="r1" />
-                      <Label htmlFor="r1">BFS</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="IDS" id="r2" />
-                      <Label htmlFor="r2">IDS</Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex flex-row gap-10 ">
+          <div className="flex flex-row justify-center gap-10">
             <FormField
               key={2}
               control={control}
               name="source"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full relative">
                   <FormLabel>Source</FormLabel>
                   <FormControl>
                     <Input
@@ -237,7 +221,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
                   </FormControl>
                   {suggestionType === "source" &&
                     wikipediaSuggestions.length > 0 && (
-                      <div className="shadow-xl">
+                      <div className="absolute bg-white shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
                             className="border  border-black p-2 hover:bg-gray-100 cursor-pointer"
@@ -253,13 +237,40 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
                 </FormItem>
               )}
             />
-            <p>To</p>
+            <div className="flex flex-col w-1/6 items-center gap-2">
+              <p>To</p>
+              <Button
+                type="button"
+                className="bg-transparent hover:bg-transparent"
+                onClick={() => {
+                  // Ambil nilai source dan destination dari form
+                  const sourceValue = form.getValues("source");
+                  const destinationValue = form.getValues("destination");
+
+                  // Tukar nilai source dan destination
+                  form.setValue("source", destinationValue);
+                  form.setValue("destination", sourceValue);
+
+                  // Ganti nilai display
+                  setQuery(destinationValue);
+                  setSuggestionType("source");
+                }}
+              >
+                <Image
+                  src="/revert.png"
+                  alt="arrow"
+                  width={25}
+                  height={25}
+                  className="hover:opacity-70"
+                />
+              </Button>
+            </div>
             <FormField
               key={3}
               control={control}
               name="destination"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full relative">
                   <FormLabel>Destination</FormLabel>
                   <FormControl>
                     <Input
@@ -278,7 +289,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
                   </FormControl>
                   {suggestionType === "destination" &&
                     wikipediaSuggestions.length > 0 && (
-                      <div className="shadow-xl">
+                      <div className="absolute bg-white shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
                             className="border  border-black p-2 hover:bg-gray-100 cursor-pointer"
@@ -296,7 +307,36 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
             />
           </div>
         </div>
-        <Button type="submit">Submit</Button>
+
+        <FormField
+          key={1}
+          control={control}
+          name="method"
+          render={({ field }) => (
+            <FormItem className="flex justify-center">
+              <FormControl>
+                <RadioGroup
+                  defaultValue="BFS"
+                  onValueChange={(newValue: any) => field.onChange(newValue)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="BFS" id="r1" />
+                    <Label htmlFor="r1">BFS</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="IDS" id="r2" />
+                    <Label htmlFor="r2">IDS</Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-center">
+          <Button type="submit">Submit</Button>
+        </div>
       </form>
     </Form>
   );

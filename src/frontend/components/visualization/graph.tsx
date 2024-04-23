@@ -24,6 +24,11 @@ const getGradientColorByLevel = (
 const getGradientId = (sourceId: string, targetId: string) =>
   `gradient-${sourceId}-${targetId}`;
 
+function sanitizeString(str: string) {
+  // Removes all occurrences of ' and `
+  return str.replace(/['`]/g, ""); // This will replace both ' and `
+}
+
 const DirectedGraph: React.FC<DirectedGraphProps> = ({
   nodes,
   links,
@@ -49,7 +54,8 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       const targetNode = nodes.find((n) => n.id === link.target);
 
       if (sourceNode && targetNode) {
-        const gradientId = `gradient-${link.source}-${link.target}`;
+        const gradientId = `gradient-${sanitizeString(link.source)}-${sanitizeString(link.target)}`;
+
         const sourceColor = getGradientColorByLevel(
           sourceNode.level ?? 0,
           Object.keys(levelNum).length
@@ -77,7 +83,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
           .attr("offset", "100%")
           .attr("stop-color", targetColor);
 
-        const markerId = `marker-${link.source}-${link.target}`;
+        const markerId = `marker-${sanitizeString(link.source)}-${sanitizeString(link.target)}`;
 
         defs
           .append("marker")
@@ -149,7 +155,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         const targetNode = nodes.find((n) => n.id === d.target);
         if (sourceNode && targetNode) {
           const offset = calculateOffset(sourceNode, targetNode);
-          return offset.x + 0.001;
+          return offset.x + 0.1;
         }
         return 0;
       })
@@ -162,11 +168,20 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         }
         return 0;
       })
-      .attr("stroke", (d: Edge) => `url(#gradient-${d.source}-${d.target})`) // Use unique gradient
+      .attr(
+        "stroke",
+        (d: Edge) =>
+          `url(#gradient-${sanitizeString(d.source)}-${sanitizeString(d.target)})`
+      ) // Use unique gradient
       .attr("stroke-width", 2)
-      .attr("marker-end", (d: Edge) => `url(#marker-${d.source}-${d.target})`); // Marker with target node color
+      .attr(
+        "marker-end",
+        (d: Edge) =>
+          `url(#marker-${sanitizeString(d.source)}-${sanitizeString(d.target)})`
+      ); // Marker with target node color
 
     // Render the nodes as circles with text
+
     svg
       .append("g")
       .attr("class", "nodes")
@@ -181,11 +196,12 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         getGradientColorByLevel(d.level ?? 0, Object.keys(levelNum).length)
       ) // Fill color based on level
       .style("cursor", "pointer")
-      .on("click", (d) => {
+      .on("click", (event, d: CustomNode) => {
         window.open(d.link, "_blank");
       })
       .on("mouseover", function (event, d) {
         // Increase the node size on hover and change the stroke color
+
         d3.select(this)
           .transition()
           .attr("r", 25)
@@ -216,7 +232,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
     return () => {
       svg.selectAll("*").remove(); // Cleanup
     };
-  }, [nodes, links]);
+  }, [nodes, links, levelNum]);
 
   return (
     <svg

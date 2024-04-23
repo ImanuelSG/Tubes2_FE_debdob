@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -28,6 +29,10 @@ func main() {
 		dest := c.Query("dest")
 		search := c.Query("search")
 
+		fmt.Println("src:", getWikiArticle(src))
+		fmt.Println("dest:", getWikiArticle(dest))
+
+		
 		if src == "" || dest == "" || search == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Source, destination, search is required"})
 			return
