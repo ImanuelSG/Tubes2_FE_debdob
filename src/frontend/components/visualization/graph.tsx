@@ -141,7 +141,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
     return () => {
       svg.selectAll("*").remove(); // Cleanup
     };
-  }, [nodes, links]);
+  }, [nodes, links, levelNum]);
 
   return <svg ref={svgRef} style={{ width: "1000px", height: "1000px" }} />;
 };
