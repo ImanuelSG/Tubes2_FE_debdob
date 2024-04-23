@@ -120,6 +120,8 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
   const onSubmit: SubmitHandler<FieldValues> = async (formData) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+
+    setResult(null);
     const isSourceValid = await doesWikipediaArticleExist(formData.source);
     const isDestinationValid = await doesWikipediaArticleExist(
       formData.destination
@@ -136,7 +138,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
     }
 
     formData.source = formData.source.replace(/ /g, "_");
-    
+
     formData.destination = formData.destination.replace(/ /g, "_");
 
     try {
@@ -157,7 +159,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
 
         // Generate the DAG data and fill the Result object
         const { nodes, Edges, numNodeLevel } = generateDAGData(data.paths);
-        
+
         Result.edges = Edges;
         Result.nodes = nodes;
         Result.levelNum = numNodeLevel;
@@ -165,7 +167,6 @@ const MainForm: React.FC<MainFormProps> = ({ setResult }) => {
         Result.resultNum = data.paths.length;
         Result.resultDepth = data.paths[0].length - 1;
 
-       
         setResult(Result);
         toast({
           variant: "success",

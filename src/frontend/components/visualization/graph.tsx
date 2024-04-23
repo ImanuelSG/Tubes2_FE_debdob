@@ -8,8 +8,8 @@ interface DirectedGraphProps {
   levelNum: Record<number, number>;
 }
 
-const startColor = "#14764Aff"; // Dark Spring Green
-const endColor = "#FCC23Cff"; // Amber
+const startColor = "#006C3B"; // Dartmouth-green
+const endColor = "#DCA629"; // Goldenrod
 
 const getGradientColorByLevel = (
   level: number,
@@ -20,9 +20,48 @@ const getGradientColorByLevel = (
   return interpolate(ratio);
 };
 
-// Function to generate unique gradient ID
-const getGradientId = (sourceId: string, targetId: string) =>
-  `gradient-${sourceId}-${targetId}`;
+const addLegend = (
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  totalLevels: number
+) => {
+  const legendGroup = svg
+    .append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(20, 20)"); // Adjust the position
+
+  // Add a label "Legend" at the top
+  legendGroup
+    .append("text")
+    .text("Legend")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("font-size", "12px")
+    .attr("class", "font-mono")
+    .attr("fill", "#FFFFFF"); // White text for better visibility
+
+  // Create a vertical legend for each level
+  for (let i = 0; i < totalLevels; i++) {
+    const color = getGradientColorByLevel(i, totalLevels);
+
+    // Add a circle for the color representation
+    legendGroup
+      .append("circle")
+      .attr("cx", 10 + i * 30) // Position the circle
+      .attr("cy", 20) // Vertical alignment, with 20px spacing between items
+      .attr("r", 10) // Radius of the circle
+      .attr("fill", color);
+
+    // Add the text next to the circle
+    legendGroup
+      .append("text")
+      .attr("x", 7 + i * 30) // Position the text to the right of the circle
+      .attr("y", 23) // Same alignment as circle
+      .attr("font-size", "10px")
+      .attr("class", "font-mono")
+      .attr("fill", "#FFFFFF") // White text for visibility
+      .text(`${i + 1}`); // Display the level number
+  }
+};
 
 function sanitizeString(str: string) {
   // Removes all occurrences of ' and `
@@ -47,6 +86,10 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .attr("width", width)
       .attr("height", height)
       .style("background-color", "#080402");
+
+    const totalLevels = Object.keys(levelNum).length;
+
+    // Add the legend to the top-left corner
 
     const defs = svg.append("defs");
     links.forEach((link) => {
@@ -102,7 +145,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
 
     const positionNodes = (nodes: CustomNode[]) => {
       const levelSeparation = 100;
-      const centerY = 50;
+      const centerY = 75;
 
       const levelCounts: Record<number, number> = {};
       nodes.forEach((node) => {
@@ -224,10 +267,12 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .attr("text-anchor", "middle")
       .text((d: CustomNode) => d.label)
       .attr("fill", "#FFFF") // Text color
-      .style("font-size", "8px")
+      .style("font-size", "10px")
       .style("pointer-events", "none") // Ensure text doesn't interfere with click events on circles
-      .style("font-family", "Montserrat")
+      .attr("class", "font-mono")
       .style("font-weight", "bold");
+
+    addLegend(svg, totalLevels);
 
     return () => {
       svg.selectAll("*").remove(); // Cleanup
