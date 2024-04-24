@@ -43,7 +43,8 @@ const Result = () => {
                   <p className="text-2xl text-black font-mono">
                     Found <strong>{result.resultNum}</strong> results in{" "}
                     <strong>{result.timeTaken} ms</strong> with a depth of
-                    separation of <strong>{result.resultDepth}</strong>.
+                    separation of <strong>{result.resultDepth}</strong> by
+                    visiting <strong>{result.resultVisited}</strong> articles.
                   </p>
                   <div className="relative">
                     <div className="absolute top-0 left-0 w-full h-full border-4 border-black translate-x-3 translate-y-3"></div>

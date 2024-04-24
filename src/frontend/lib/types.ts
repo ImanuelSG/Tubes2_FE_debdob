@@ -16,6 +16,7 @@ interface Edge {
 interface APIResponse {
   paths: string[][];
   timeTaken: number;
+  visited: number;
 }
 
 interface Response {
@@ -25,6 +26,7 @@ interface Response {
   timeTaken: number;
   resultNum: number;
   resultDepth: number;
+  resultVisited: number;
 }
 
 // Using `export type` to explicitly export types

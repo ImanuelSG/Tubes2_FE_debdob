@@ -31,6 +31,7 @@ const initialResponse: Response = {
   timeTaken: 0,
   resultNum: 0,
   resultDepth: 0,
+  resultVisited: 0,
 };
 
 const WIKIPEDIA_SEARCH_ENDPOINT =
@@ -62,7 +63,6 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
     try {
       const response = await fetch(wikipediaCheckApiUrl);
       const data = await response.json();
-      console.log(data);
 
       // Check if the response contains the requested page and it doesn't redirect
       return (
@@ -94,7 +94,12 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
     },
   });
 
-  const { control, handleSubmit, setValue } = form;
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { isSubmitting },
+  } = form;
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -167,6 +172,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
         Result.timeTaken = data.timeTaken;
         Result.resultNum = data.paths.length;
         Result.resultDepth = data.paths[0].length - 1;
+        Result.resultVisited = data.visited;
 
         setResult(Result);
         setLoading(false);
@@ -184,6 +190,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
         });
       }
     } catch (error) {
+      console.log(error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -338,7 +345,13 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
         />
 
         <div className="flex justify-center">
-          <Button type="submit" onClick={() => setLoading(true)}>Submit</Button>
+          <Button
+            type="submit"
+            onClick={() => setLoading(true)}
+            disabled={isSubmitting}
+          >
+            Submit
+          </Button>
         </div>
       </form>
     </Form>

@@ -8,8 +8,8 @@ interface DirectedGraphProps {
   levelNum: Record<number, number>;
 }
 
-const startColor = "#006C3B"; // Dartmouth-green
-const endColor = "#DCA629"; // Goldenrod
+const startColor = "#04C46D"; // Dartmouth-green
+const endColor = "#FCC442"; // Goldenrod
 
 const getGradientColorByLevel = (
   level: number,
@@ -35,9 +35,9 @@ const addLegend = (
     .text("Legend")
     .attr("x", 0)
     .attr("y", 0)
-    .attr("font-size", "12px")
+    .attr("font-size", "20px")
     .attr("class", "font-mono")
-    .attr("fill", "#FFFFFF"); // White text for better visibility
+    .attr("fill", "#020202"); // White text for better visibility
 
   // Create a vertical legend for each level
   for (let i = 0; i < totalLevels; i++) {
@@ -58,7 +58,7 @@ const addLegend = (
       .attr("y", 23) // Same alignment as circle
       .attr("font-size", "10px")
       .attr("class", "font-mono")
-      .attr("fill", "#FFFFFF") // White text for visibility
+      .attr("fill", "#020202") // White text for visibility
       .text(`${i + 1}`); // Display the level number
   }
 };
@@ -266,7 +266,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .attr("y", (d: CustomNode) => (d.y ? d.y + 3 : 0))
       .attr("text-anchor", "middle")
       .text((d: CustomNode) => d.label)
-      .attr("fill", "#FFFF") // Text color
+      .attr("fill", "#020202") // Text color
       .style("font-size", "10px")
       .style("pointer-events", "none") // Ensure text doesn't interfere with click events on circles
       .attr("class", "font-mono")
