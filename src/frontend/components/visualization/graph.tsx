@@ -64,8 +64,8 @@ const addLegend = (
 };
 
 function sanitizeString(str: string) {
-  // Removes all occurrences of ' and `
-  return str.replace(/['`]/g, ""); // This will replace both ' and `
+  // Replace any problematic characters with a safe character, like an underscore
+  return str.replace(/[^a-zA-Z0-9-_]/g, "_"); // This keeps only alphanumeric characters, dash, and underscore
 }
 
 const DirectedGraph: React.FC<DirectedGraphProps> = ({
