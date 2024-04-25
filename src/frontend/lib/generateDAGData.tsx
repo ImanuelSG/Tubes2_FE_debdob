@@ -45,6 +45,8 @@ const generateDAGData = (
     numNodeLevels[node.level] = (numNodeLevels[node.level] || 0) + 1;
   });
 
+  nodes.sort((a, b) => a.level - b.level);
+
   return { nodes, Edges: EdgesData, numNodeLevel: numNodeLevels };
 };
 
