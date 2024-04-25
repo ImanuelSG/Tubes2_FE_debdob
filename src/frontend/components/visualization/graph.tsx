@@ -148,6 +148,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       const centerY = 75;
 
       const levelCounts: Record<number, number> = {};
+
       nodes.forEach((node) => {
         const level = node.level ?? 0;
         levelCounts[level] = (levelCounts[level] || 0) + 1;
@@ -243,17 +244,31 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         window.open(d.link, "_blank");
       })
       .on("mouseover", function (event, d) {
-        // Increase the node size on hover and change the stroke color
-
+        // Increase node size on hover
         d3.select(this)
           .transition()
-          .attr("r", 25)
+          .attr("r", 25) // Enlarged radius
           .attr("stroke", "#000")
           .attr("stroke-width", 3);
+
+        // Select corresponding text and increase its size
+        d3.select(`text[data-id="${sanitizeString(d.label)}"]`) // You can identify the text by data-id or other unique attributes
+          .transition()
+          .style("font-size", "30px") // Increase font size
+          .style("font-weight", "bold"); // Optional: change font-weight
       })
       .on("mouseout", function (event, d) {
-        // Reset the node size and remove the stroke
-        d3.select(this).transition().attr("r", 12).attr("stroke", null);
+        // Reset node size on mouseout
+        d3.select(this)
+          .transition()
+          .attr("r", 12) // Reset radius
+          .attr("stroke", null);
+
+        // Reset corresponding text size
+        d3.select(`text[data-id="${sanitizeString(d.label)}"]`)
+          .transition()
+          .style("font-size", "10px") // Original font size
+          .style("font-weight", "bold"); // Reset font-weight if modified
       });
 
     // Add text on top of the circles
@@ -270,7 +285,8 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .style("font-size", "10px")
       .style("pointer-events", "none") // Ensure text doesn't interfere with click events on circles
       .attr("class", "font-mono")
-      .style("font-weight", "bold");
+      .style("font-weight", "bold")
+      .attr("data-id", (d: CustomNode) => sanitizeString(d.label)); // This data-id helps identify the text element
 
     addLegend(svg, totalLevels);
 

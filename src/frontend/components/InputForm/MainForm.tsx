@@ -82,6 +82,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
     destination: z.string().min(1, {
       message: "Destination cannot be empty",
     }),
+    type: z.string().min(1, { message: "Result Type cannot be empty" }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,6 +92,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
       method: "BFS",
       source: "",
       destination: "",
+      type: "Single",
     },
   });
 
@@ -149,7 +151,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}?src=${formData.source}&dest=${formData.destination}&search=${formData.method}`
+        `${process.env.NEXT_PUBLIC_API_URL}?src=${formData.source}&dest=${formData.destination}&search=${formData.method}&resultAmount=${formData.type}`
       );
 
       if (!response.ok) {
@@ -158,6 +160,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
           title: "Uh oh! Something went wrong.",
           description: "There was a problem with your request.",
         });
+        setLoading(false);
         return;
       } else {
         const data: APIResponse = await response.json();
@@ -196,6 +199,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
         title: "Uh oh! Something went wrong.",
         description: "There was a problem with your network.",
       });
+      setLoading(false);
     }
   };
 
@@ -317,33 +321,74 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
             />
           </div>
         </div>
-
-        <FormField
-          key={1}
-          control={control}
-          name="method"
-          render={({ field }) => (
-            <FormItem className="flex justify-center">
-              <FormControl>
-                <RadioGroup
-                  defaultValue="BFS"
-                  onValueChange={(newValue: any) => field.onChange(newValue)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="BFS" id="r1" />
-                    <Label htmlFor="r1">BFS</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="IDS" id="r2" />
-                    <Label htmlFor="r2">IDS</Label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <section className="flex flex-row">
+          <FormField
+            key={1}
+            control={control}
+            name="method"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Method</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    defaultValue="BFS"
+                    onValueChange={(newValue: any) => field.onChange(newValue)}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="BFS" />
+                      </FormControl>
+                      <FormLabel className="font-normal">BFS</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="IDS" />
+                      </FormControl>
+                      <FormLabel className="font-normal">IDS</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            key={2}
+            control={control}
+            name="type"
+            render={({ field }) => (
+              <FormItem className="space-y-3 ml-auto">
+                <FormLabel>Result type</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    defaultValue="Single"
+                    onValueChange={(newValue: any) => field.onChange(newValue)}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="Single" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Single Solution
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="Multi" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        Multiple Solution
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
         <div className="flex justify-center">
           <Button
             type="submit"
