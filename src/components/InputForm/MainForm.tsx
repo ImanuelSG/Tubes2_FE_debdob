@@ -38,7 +38,11 @@ const initialResponse: Response = {
 const WIKIPEDIA_SEARCH_ENDPOINT =
   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*";
 
-const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading, setShowPaper }) => {
+const MainForm: React.FC<MainFormProps> = ({
+  setResult,
+  setLoading,
+  setShowPaper,
+}) => {
   const { toast } = useToast();
   const [query, setQuery] = useState<string>("");
   const [wikipediaSuggestions, setWikipediaSuggestions] = useState([]);
@@ -322,7 +326,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading, setShowPaper
             />
           </div>
         </div>
-        <section className="flex flex-row">
+        <section className="flex flex-col items-center justify-center gap-5">
           <FormField
             key={1}
             control={control}
@@ -359,8 +363,8 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading, setShowPaper
             control={control}
             name="type"
             render={({ field }) => (
-              <FormItem className="space-y-3 ml-auto">
-                <FormLabel>Result type</FormLabel>
+              <FormItem className="space-y-3 items-center justify-center">
+                <h1 className="text-center">Result type</h1>
                 <FormControl>
                   <RadioGroup
                     defaultValue="Single"
@@ -393,7 +397,9 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading, setShowPaper
         <div className="flex justify-center">
           <Button
             type="submit"
-            onClick={() => {setLoading(true), setShowPaper(true)}}
+            onClick={() => {
+              setLoading(true), setShowPaper(true);
+            }}
             disabled={isSubmitting}
           >
             Submit

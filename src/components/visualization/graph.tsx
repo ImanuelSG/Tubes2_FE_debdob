@@ -90,7 +90,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
 
     const width = 1000; // Horizontal width
     const height =
-      Object.keys(levelNum).length * 50 + 50 + getAdditionalRow(levelNum) * 50; // Vertical height
+      Object.keys(levelNum).length * 75 + 50 + getAdditionalRow(levelNum) * 75; // Vertical height
 
     const svg = d3
       .select(svgRef.current)
@@ -157,7 +157,7 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
     const maxNodePerLevel = 10;
 
     const positionNodes = (nodes: CustomNode[]) => {
-      const levelSeparation = 50;
+      const levelSeparation = 75;
       let currentY = 75;
 
       const levelCounts: Record<number, number> = {};
@@ -320,9 +320,9 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       style={{
         width: "1000px",
         height:
-          Object.keys(levelNum).length * 50 +
+          Object.keys(levelNum).length * 75 +
           50 +
-          getAdditionalRow(levelNum) * 50,
+          getAdditionalRow(levelNum) * 75,
       }}
     />
   );
