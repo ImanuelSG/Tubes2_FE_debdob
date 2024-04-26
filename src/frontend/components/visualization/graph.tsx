@@ -68,6 +68,16 @@ function sanitizeString(str: string) {
   return str.replace(/[^a-zA-Z0-9-_]/g, "_"); // This keeps only alphanumeric characters, dash, and underscore
 }
 
+const getAdditionalRow = (levelNum: Record<number, number>) => {
+  let needs = 0;
+  for (const key in levelNum) {
+    if (levelNum[key] > 10) {
+      needs += Math.ceil(levelNum[key] / 10) - 1;
+    }
+  }
+  return needs;
+};
+
 const DirectedGraph: React.FC<DirectedGraphProps> = ({
   nodes,
   links,
@@ -79,7 +89,8 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
     if (!svgRef.current) return;
 
     const width = 1000; // Horizontal width
-    const height = Object.keys(levelNum).length * 100 + 50; // Vertical height
+    const height =
+      Object.keys(levelNum).length * 50 + 50 + getAdditionalRow(levelNum) * 50; // Vertical height
 
     const svg = d3
       .select(svgRef.current)
@@ -143,20 +154,29 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       }
     });
 
+    const maxNodePerLevel = 10;
+
     const positionNodes = (nodes: CustomNode[]) => {
-      const levelSeparation = 100;
-      const centerY = 75;
+      const levelSeparation = 50;
+      let currentY = 75;
 
       const levelCounts: Record<number, number> = {};
+
       nodes.forEach((node) => {
         const level = node.level ?? 0;
         levelCounts[level] = (levelCounts[level] || 0) + 1;
-        node.y = centerY + level * levelSeparation;
 
         const nodesInLevel = levelNum[level];
-        const StartingX = width / (nodesInLevel + 1);
+        const StartingX =
+          width / (nodesInLevel + 1 >= 11 ? 11 : nodesInLevel + 1);
+        if (levelCounts[level] > maxNodePerLevel) {
+          currentY += levelSeparation;
+          levelCounts[level] = 1;
+        }
 
         node.x = levelCounts[level] * StartingX;
+
+        node.y = currentY + level * levelSeparation;
       });
     };
 
@@ -243,17 +263,31 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
         window.open(d.link, "_blank");
       })
       .on("mouseover", function (event, d) {
-        // Increase the node size on hover and change the stroke color
-
+        // Increase node size on hover
         d3.select(this)
           .transition()
-          .attr("r", 25)
+          .attr("r", 25) // Enlarged radius
           .attr("stroke", "#000")
           .attr("stroke-width", 3);
+
+        // Select corresponding text and increase its size
+        d3.select(`text[data-id="${sanitizeString(d.label)}"]`) // You can identify the text by data-id or other unique attributes
+          .transition()
+          .style("font-size", "30px") // Increase font size
+          .style("font-weight", "bold"); // Optional: change font-weight
       })
       .on("mouseout", function (event, d) {
-        // Reset the node size and remove the stroke
-        d3.select(this).transition().attr("r", 12).attr("stroke", null);
+        // Reset node size on mouseout
+        d3.select(this)
+          .transition()
+          .attr("r", 12) // Reset radius
+          .attr("stroke", null);
+
+        // Reset corresponding text size
+        d3.select(`text[data-id="${sanitizeString(d.label)}"]`)
+          .transition()
+          .style("font-size", "10px") // Original font size
+          .style("font-weight", "bold"); // Reset font-weight if modified
       });
 
     // Add text on top of the circles
@@ -270,7 +304,8 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       .style("font-size", "10px")
       .style("pointer-events", "none") // Ensure text doesn't interfere with click events on circles
       .attr("class", "font-mono")
-      .style("font-weight", "bold");
+      .style("font-weight", "bold")
+      .attr("data-id", (d: CustomNode) => sanitizeString(d.label)); // This data-id helps identify the text element
 
     addLegend(svg, totalLevels);
 
@@ -284,7 +319,10 @@ const DirectedGraph: React.FC<DirectedGraphProps> = ({
       ref={svgRef}
       style={{
         width: "1000px",
-        height: Object.keys(levelNum).length * 100 + 50,
+        height:
+          Object.keys(levelNum).length * 50 +
+          50 +
+          getAdditionalRow(levelNum) * 50,
       }}
     />
   );
