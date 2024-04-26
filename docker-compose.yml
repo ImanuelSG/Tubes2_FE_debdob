@@ -3,16 +3,16 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ./src/frontend #if your Dockerfile is not at the same level change the path here (./frontend)
+      context: ./src #if your Dockerfile is not at the same level change the path here (./frontend)
       target: dev
     restart: always
     command: yarn dev
     environment:
       - NODE_ENV=development 
-      #if you’re using Windows, you may need to uncomment the next line - Sol from @Kobe E
-      #- WATCHPACK_POLLING=true
+      # if you’re using Windows, you may need to uncomment the next line - Sol from @Kobe E
+      - WATCHPACK_POLLING=true
     volumes:
-      - ./src/frontend:/app
+      - .:/app
       - /app/node_modules
       - /app/.next
     ports:
