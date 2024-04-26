@@ -22,6 +22,7 @@ import generateDAGData from "@/lib/generateDAGData";
 interface MainFormProps {
   setResult: Dispatch<SetStateAction<Response | null>>;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  setShowPaper: Dispatch<SetStateAction<boolean>>;
 }
 
 const initialResponse: Response = {
@@ -37,7 +38,7 @@ const initialResponse: Response = {
 const WIKIPEDIA_SEARCH_ENDPOINT =
   "https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*";
 
-const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
+const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading, setShowPaper }) => {
   const { toast } = useToast();
   const [query, setQuery] = useState<string>("");
   const [wikipediaSuggestions, setWikipediaSuggestions] = useState([]);
@@ -347,7 +348,7 @@ const MainForm: React.FC<MainFormProps> = ({ setResult, setLoading }) => {
         <div className="flex justify-center">
           <Button
             type="submit"
-            onClick={() => setLoading(true)}
+            onClick={() => {setLoading(true), setShowPaper(true)}}
             disabled={isSubmitting}
           >
             Submit
