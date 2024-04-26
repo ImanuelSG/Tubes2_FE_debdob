@@ -110,5 +110,5 @@ Created by:
 | Name                      | NIM      | Contact                     |Github
 | ------------------------- | -------- | --------------------------- |------
 | Imanuel Sebastian Girsang | 13522058 | 13522058@std.stei.itb.ac.id |[ImanuelSG](https://github.com/ImanuelSG)
-| Ahmad Mudabbir Arif       | 13522072 | 13522072@std.stei.itb.ac.id |[Dabbir]()
+| Ahmad Mudabbir Arif       | 13522072 | 13522072@std.stei.itb.ac.id |[Dabbir](https://github.com/Dabbir)
 | Muhammad Neo Cicero Koda  | 13522108 | 13522108@std.stei.itb.ac.id |[neokoda](https://github.com/neokoda)
