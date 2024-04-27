@@ -1,19 +1,12 @@
 version: "3.8"
-services: 
+services:
   frontend:
     container_name: frontend
     build:
-      context: ./src #if your Dockerfile is not at the same level change the path here (./frontend)
-      target: dev
-    restart: always
-    command: yarn dev
+      context: ./src
+    restart: always #change if you don't want your container restarting
     environment:
-      - NODE_ENV=development 
-      # if you’re using Windows, you may need to uncomment the next line - Sol from @Kobe E
-      - WATCHPACK_POLLING=true
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL = "http://localhost:8000/"
     ports:
       - 3000:3000

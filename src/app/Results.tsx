@@ -6,12 +6,26 @@ import DirectedGraph from "@/components/visualization/graph";
 import { Response } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import quotes from "../lib/quotes";
 
 const Result = () => {
   const [result, setResult] = useState<Response | null>(null);
   const [showPaper, setShowPaper] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Get a random quote from the list
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      setCurrentQuote(randomQuote);
+    }, 1000); // Change every second
+
+    // Cleanup the interval when the component is unmounted
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const togglePaper = () => {
     setShowPaper(!showPaper);
@@ -20,7 +34,11 @@ const Result = () => {
   return (
     <main className="flex h-full flex-col items-center gap-8">
       <div className="z-10 py-24 flex w-full items-center justify-center font-mono text-sm bg-color3 rounded-b-[4rem] shadow-xl lg:flex">
-        <MainForm setResult={setResult} setLoading={setLoading} setShowPaper={setShowPaper} />
+        <MainForm
+          setResult={setResult}
+          setLoading={setLoading}
+          setShowPaper={setShowPaper}
+        />
       </div>
       <div className="flex flex-col items-center justify-center mb-4">
         <div className="relative">
@@ -32,6 +50,10 @@ const Result = () => {
                 <div className="fixed flex flex-col gap-4 items-center justify-center w-full h-full -translate-y-4">
                   <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-color1"></div>
                   <h3 className="font-mono text-xl text-color1">Loading...</h3>
+                  <p className="font-mono text-lg text-color1">
+                    {currentQuote}
+                  </p>{" "}
+                  {/* Display the quote */}
                 </div>
               ) : result ? (
                 <div className="flex flex-col items-center gap-10 my-8">
@@ -69,7 +91,12 @@ const Result = () => {
                               className="flex flex-col items-start px-6 gap-4"
                             >
                               {/* <Image src={`https://en.wikipedia.org/wiki/File:${node.label}.jpg`} alt="user" width={50} height={50} /> */}
-                              <Link href={`${node.id}`} className="font-mono text-lg">{node.label}</Link>
+                              <Link
+                                href={`${node.id}`}
+                                className="font-mono text-lg"
+                              >
+                                {node.label}
+                              </Link>
                             </div>
                           );
                         })}
