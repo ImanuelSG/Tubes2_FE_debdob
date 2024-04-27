@@ -3,7 +3,7 @@ import type { CustomNode, Edge } from "./types";
 // Sample input paths with Wikipedia links
 
 // Function to extract a readable label from a Wikipedia link
-const extractLabelFromLink = (link: string): string => {
+export const extractLabelFromLink = (link: string): string => {
   const segments = link.split("/");
   return decodeURIComponent(segments[segments.length - 1].replace(/_/g, " ")); // Extract the title
 };

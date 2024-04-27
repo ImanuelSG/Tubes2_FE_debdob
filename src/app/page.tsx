@@ -10,11 +10,11 @@ export default function Home() {
         <div className="w-1/2 flex flex-col items-start justify-center gap-8">
           <h1 className="text-6xl text-color1 font-bold">Find The Path</h1>
           <p className="text-lg">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque
-            dicta iusto error explicabo tempora voluptatibus quis ut velit
-            blanditiis. Tenetur expedita minus id voluptatum itaque? Ratione
-            porro eaque odio sapiente quasi autem obcaecati asperiores molestiae
-            neque.
+            DebDob adalah sebuah platform web yang menawarkan pengalaman
+            penjelajahan yang menarik dan mendidik, mirip dengan konsep
+            permainan Wikirace. Dalam permainan ini, pengguna diberi tantangan
+            untuk mencari jalur terpendek antara dua topik Wikipedia yang
+            berbeda menggunakan tautan antarartikel.
           </p>
           <Link
             href="/start"
