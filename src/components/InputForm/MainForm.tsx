@@ -234,7 +234,7 @@ const MainForm: React.FC<MainFormProps> = ({
                       placeholder="source"
                       {...field}
                       value={field.value} // required to bind the value from the form
-                      onChange={(e) => handleInputChange(e, "source")}
+                      onChange={(e) => handleInputChange(e, "source") }
                       onBlur={() => {
                         setTimeout(() => setSuggestionType(null), 1000);
                       }}
