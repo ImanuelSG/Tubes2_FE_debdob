@@ -23,6 +23,7 @@ interface MainFormProps {
   setResult: Dispatch<SetStateAction<Response | null>>;
   setLoading: Dispatch<SetStateAction<boolean>>;
   setShowPaper: Dispatch<SetStateAction<boolean>>;
+  setPaths: Dispatch<SetStateAction<string[][]>>;
 }
 
 const initialResponse: Response = {
@@ -42,6 +43,7 @@ const MainForm: React.FC<MainFormProps> = ({
   setResult,
   setLoading,
   setShowPaper,
+  setPaths,
 }) => {
   const { toast } = useToast();
   const [query, setQuery] = useState<string>("");
@@ -183,6 +185,7 @@ const MainForm: React.FC<MainFormProps> = ({
         Result.resultVisited = data.visited;
 
         setResult(Result);
+        setPaths(data.paths);
         setLoading(false);
         toast({
           variant: "success",
@@ -243,7 +246,7 @@ const MainForm: React.FC<MainFormProps> = ({
                       <div className="absolute  shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
-                            className="border bg-transparent border-black p-2 hover:bg-gray-100 cursor-pointer"
+                            className="border bg-color3 border-black p-2 hover:bg-gray-100 cursor-pointer"
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
                           >
@@ -311,7 +314,7 @@ const MainForm: React.FC<MainFormProps> = ({
                       <div className="absolute  shadow-xl w-full">
                         {wikipediaSuggestions.map((suggestion, index) => (
                           <div
-                            className="border bg-transparent border-black p-2 hover:bg-gray-100 cursor-pointer"
+                            className="border bg-color3 border-black p-2 hover:bg-gray-100 cursor-pointer"
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
                           >
