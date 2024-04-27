@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,7 +12,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+} from "@/components/ui/navigation-menu";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -24,10 +24,9 @@ const components: { title: string; href: string; description: string }[] = [
   {
     title: "IDS",
     href: "/ids",
-    description:
-      "Algoritma hibrida yang menggabungkan aspek DFS dan BFS.",
+    description: "Algoritma hibrida yang menggabungkan aspek DFS dan BFS.",
   },
-]
+];
 
 export function NavigationMenuBar() {
   return (
@@ -41,27 +40,24 @@ export function NavigationMenuBar() {
                 <NavigationMenuLink asChild>
                   <a
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                    href="/"
+                    href="/start"
                   >
                     <div className="mb-2 mt-4 text-lg font-medium">
-                      Find The Path
+                      Find Your Path!
                     </div>
-                    <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components that you can copy and
-                      paste into your apps. Accessible. Customizable. Open
-                      Source.
-                    </p>
+                    <p className="text-sm">&quot;Temukan keasyikan dalam menjelajahi pengetahuan dengan Deb Dob! Mari kita mulai petualangan melalui informasi, pengetahuan, dan temuan menarik bersama-sama.&quot;</p>
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
+              <ListItem href="/docs" title="Front-end Development">
+                Berfokus pada elemen yang dilihat dan berinteraksi dengan
+                pengguna akhir.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
+              <ListItem href="/docs" title="Back-end Development">
+                Berfokus pada apa yang terjadi di sisi server.
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
+              <ListItem href="/docs" title="Dockerization">
+                Proses mengemas aplikasi dan dependensinya ke dalam container.
               </ListItem>
             </ul>
           </NavigationMenuContent>
@@ -91,7 +87,7 @@ export function NavigationMenuBar() {
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
-  )
+  );
 }
 
 const ListItem = React.forwardRef<
@@ -116,6 +112,6 @@ const ListItem = React.forwardRef<
         </a>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = "ListItem"
+  );
+});
+ListItem.displayName = "ListItem";
